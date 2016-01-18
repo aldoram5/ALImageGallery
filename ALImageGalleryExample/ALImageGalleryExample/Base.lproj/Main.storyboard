@@ -44,12 +44,31 @@
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yBX-i9-KuB">
+                                <rect key="frame" x="462" y="93" width="118" height="30"/>
+                                <color key="backgroundColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="AcH-tC-A7R"/>
+                                    <constraint firstAttribute="width" constant="118" id="BjE-Gi-FqT"/>
+                                </constraints>
+                                <state key="normal" title="Selected Index">
+                                    <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                </state>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="string" keyPath="layer.cornerRadius" value="10"/>
+                                </userDefinedRuntimeAttributes>
+                                <connections>
+                                    <action selector="showImagesFrom2ndIndexGallery" destination="BYZ-38-t0r" eventType="touchUpInside" id="zBr-me-Qpr"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="J0E-3T-4Jq" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailingMargin" id="1Nf-ZN-EyV"/>
+                            <constraint firstItem="yBX-i9-KuB" firstAttribute="top" secondItem="J0E-3T-4Jq" secondAttribute="bottom" constant="40" id="7q8-dH-8zn"/>
                             <constraint firstItem="lji-ll-6ij" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="JJm-vE-Gfl"/>
                             <constraint firstItem="lji-ll-6ij" firstAttribute="top" secondItem="J0E-3T-4Jq" secondAttribute="bottom" constant="40" id="MfT-LK-Ung"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="yBX-i9-KuB" secondAttribute="trailing" id="R1l-az-ikd"/>
                             <constraint firstItem="J0E-3T-4Jq" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="h9Z-DD-1ut"/>
                             <constraint firstItem="J0E-3T-4Jq" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="ubN-ii-0yn"/>
                         </constraints>

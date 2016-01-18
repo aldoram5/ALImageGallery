@@ -50,14 +50,21 @@ class ViewController: UIViewController {
     }
     
     @IBAction func showImagesOnlyGallery(){
-        let imageGallery = ALImageGalleryViewController()
-        imageGallery.images = images
+        let imageGallery = ALImageGalleryViewController(images: images)
         imageGallery.dismissWhenSlidesUp = true
         self.presentViewController(imageGallery, animated: true, completion: nil)
-        /*let vc = TestVC()
-        self.presentViewController(vc, animated: true, completion: nil)*/
         
     }
+    
+    
+    @IBAction func showImagesFrom2ndIndexGallery(){
+        let imageGallery = ALImageGalleryViewController(images: images, selectedIndex: 1)
+        imageGallery.dismissWhenSlidesUp = true
+        self.presentViewController(imageGallery, animated: true, completion: nil)
+        
+    }
+    
+    
 
 
 }
