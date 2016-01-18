@@ -21,14 +21,13 @@ import ALImageGallery
 And then you can use it like this:
 
 ```swift
-//Instantiate the gallery
-let imageGallery = ALImageGalleryViewController()
+//prepare the images
 var images:[UIImage] = []
 images.append(UIImage(named: "image1")!)
 images.append(UIImage(named: "image2")!)
 images.append(UIImage(named: "image3")!)
-//set the images
-imageGallery.images = images
+//Instantiate the gallery
+let imageGallery = ALImageGalleryViewController(images: images)
 //present the Gallery
 self.presentViewController(imageGallery, animated: true, completion: nil)
 ```
