@@ -1,16 +1,14 @@
 language: objective-c
 
 osx_image: xcode7.2
-env:
-  global:
-  - WORKSPACE=ALImageGallery.xcworkspace
+xcode_workspace: ALImageGallery.xcworkspace
+xcode_scheme: ALImageGallery
+
   - IOS_FRAMEWORK_SCHEME="ALImageGallery"
   - IOS_SDK=iphonesimulator9.2
   - EXAMPLE_SCHEME="ALImageGalleryExample"
   - DESTINATION="OS=9.2,name=iPhone 6S Plus" 
   
-script:
+script: set -o pipefail &&  xcodebuild -workspace ALImageGallery.xcworkspace -scheme ALImageGallery -sdk iphonesimulator -destination 'OS=9.2,name=iPhone 6S Plus' build | xcpretty ;
 
-- xcodebuild -workspace "$WORKSPACE" -scheme "$IOS_FRAMEWORK_SCHEME" -sdk "$SDK" -destination "$DESTINATION" -configuration Debug ONLY_ACTIVE_ARCH=NO build | xcpretty -c;
-
-- xcodebuild -workspace "$WORKSPACE" -scheme "$EXAMPLE_SCHEME" -sdk "$SDK" -destination "$DESTINATION" -configuration Release ONLY_ACTIVE_ARCH=NO build | xcpretty -c; 
+set -o pipefail && xcodebuild -workspace ALImageGallery.xcworkspace -scheme ALImageGalleryExample -sdk iphonesimulator -destination 'OS=9.2,name=iPhone 6S Plus' build | xcpretty ; 
