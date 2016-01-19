@@ -4,11 +4,4 @@ osx_image: xcode7.2
 xcode_workspace: ALImageGallery.xcworkspace
 xcode_scheme: ALImageGallery
 
-  - IOS_FRAMEWORK_SCHEME="ALImageGallery"
-  - IOS_SDK=iphonesimulator9.2
-  - EXAMPLE_SCHEME="ALImageGalleryExample"
-  - DESTINATION="OS=9.2,name=iPhone 6S Plus" 
-  
-script: set -o pipefail &&  xcodebuild -workspace ALImageGallery.xcworkspace -scheme ALImageGallery -sdk iphonesimulator -destination 'OS=9.2,name=iPhone 6S Plus' build | xcpretty ;
-
-set -o pipefail && xcodebuild -workspace ALImageGallery.xcworkspace -scheme ALImageGalleryExample -sdk iphonesimulator -destination 'OS=9.2,name=iPhone 6S Plus' build | xcpretty ; 
+script: set -o pipefail &&  xcodebuild -workspace ALImageGallery.xcworkspace -scheme ALImageGallery -sdk iphonesimulator -destination 'OS=9.2,name=iPhone 6S Plus' build | xcpretty | xcodebuild -workspace ALImageGallery.xcworkspace -scheme ALImageGalleryExample -sdk iphonesimulator -destination 'OS=9.2,name=iPhone 6S Plus' build | xcpretty ;
