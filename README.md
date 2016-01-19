@@ -2,7 +2,7 @@
 
 ![](https://travis-ci.org/aldoram5/ALImageGallery.svg?branch=master)
 
-A lightweight Image Gallery written in Swift, it supports zooming the images and paging through them. 
+A lightweight Image Gallery for iOS written in Swift, it supports zooming the images and paging through them. 
 More features will be added in the near future so be sure to comeback.
 Licensed under MIT License.
 
