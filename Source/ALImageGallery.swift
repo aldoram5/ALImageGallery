@@ -109,7 +109,7 @@ public class ALImageGalleryViewController:UIViewController, UIPageViewController
             return;
         }
         UIDevice.currentDevice().beginGeneratingDeviceOrientationNotifications()
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "orientationChanged", name: UIDeviceOrientationDidChangeNotification, object: UIDevice.currentDevice())
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ALImageGalleryViewController.orientationChanged), name: UIDeviceOrientationDidChangeNotification, object: UIDevice.currentDevice())
         for v  in  self.view.subviews {
             v.backgroundColor = UIColor.clearColor()
         }
@@ -139,7 +139,7 @@ public class ALImageGalleryViewController:UIViewController, UIPageViewController
             if(index == ( images.count - 1 )){
                 return nil
             }else{
-                index++
+                index += 1
                 return getViewControllerForIndex(index)
             }
         }
@@ -154,7 +154,7 @@ public class ALImageGalleryViewController:UIViewController, UIPageViewController
             if(index == 0 ){
                 return nil
             }else{
-                index--
+                index -= 1
                 return getViewControllerForIndex(index)
             }
         }
@@ -175,8 +175,8 @@ public class ALImageGalleryViewController:UIViewController, UIPageViewController
         imageView.contentMode = UIViewContentMode.ScaleAspectFit
         imageView.clipsToBounds = true;
         
-        let singleTap = UITapGestureRecognizer(target: self, action: "handleTapGesture:" )
-        let doubleTap = UITapGestureRecognizer(target: self, action: "handleDoubleTapGesture:" )
+        let singleTap = UITapGestureRecognizer(target: self, action: #selector(ALImageGalleryViewController.handleTapGesture(_:)) )
+        let doubleTap = UITapGestureRecognizer(target: self, action: #selector(ALImageGalleryViewController.handleDoubleTapGesture(_:)) )
         singleTap.numberOfTapsRequired = 1
         singleTap.requireGestureRecognizerToFail(doubleTap)
         doubleTap.numberOfTapsRequired = 2
@@ -339,7 +339,7 @@ public class ALImageGalleryViewController:UIViewController, UIPageViewController
         closeButton.backgroundColor = UIColor(red: 0.1, green: 0.1, blue: 0.1, alpha: 0.6)
         closeButton.layer.borderColor = UIColor.whiteColor().CGColor
         closeButton.hidden = closeButtonhidden
-        closeButton.addTarget(self, action: "removeGallery", forControlEvents: .TouchUpInside)
+        closeButton.addTarget(self, action: #selector(ALImageGalleryViewController.removeGallery), forControlEvents: .TouchUpInside)
         self.mainView.addSubview(closeButton)
         self.mainView.bringSubviewToFront(closeButton)
     }
@@ -373,7 +373,7 @@ internal class ALHelperViewController: UIViewController, UIGestureRecognizerDele
     
     override func viewDidLoad() {
         if(gallery.canBeDragged){
-            let dragRecognizer = UIPanGestureRecognizer(target: self, action: "handleDragGesture:" )
+            let dragRecognizer = UIPanGestureRecognizer(target: self, action: #selector(ALHelperViewController.handleDragGesture(_:)) )
             dragRecognizer.maximumNumberOfTouches = 1
             dragRecognizer.minimumNumberOfTouches = 1
             dragRecognizer.delegate = self
