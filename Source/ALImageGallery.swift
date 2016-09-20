@@ -32,44 +32,44 @@ import Foundation
 
 public protocol ALImageGalleryDelegate{
     
-    func galleryDidReceiveTap(imageGallery:ALImageGalleryViewController)
-    func galleryDidReceiveDoubleTap(imageGallery:ALImageGalleryViewController)
-    func galleryDidDismiss(imageGallery:ALImageGalleryViewController)
-    func galleryImageDragged(imageGallery:ALImageGalleryViewController)
+    func galleryDidReceiveTap(_ imageGallery:ALImageGalleryViewController)
+    func galleryDidReceiveDoubleTap(_ imageGallery:ALImageGalleryViewController)
+    func galleryDidDismiss(_ imageGallery:ALImageGalleryViewController)
+    func galleryImageDragged(_ imageGallery:ALImageGalleryViewController)
     
     
 
 }
 
-public class ALImageGalleryViewController:UIViewController, UIPageViewControllerDataSource, UIScrollViewDelegate {
+open class ALImageGalleryViewController:UIViewController, UIPageViewControllerDataSource, UIScrollViewDelegate {
     /// The images that the gallery contains
-    public var images:[UIImage] = []
+    open var images:[UIImage] = []
     /// Either the gallery should response to being dragged to top or not
-    public var dismissWhenSlidesUp:Bool = true
+    open var dismissWhenSlidesUp:Bool = true
     /// Either if the current displayed image should respond to dragging
-    public var canBeDragged:Bool = true
+    open var canBeDragged:Bool = true
     /// The index in which the gallery should open first
-    public var selectedIndex:Int = 0
+    open var selectedIndex:Int = 0
     /// A function to be executed once the Gallery is dismissed
-    public var onDismissViewController:(() -> Void)? = nil
+    open var onDismissViewController:(() -> Void)? = nil
     /// A function to be executed once the Gallery is dragged to top
-    public var onMovedToTop:Optional<() -> Void> = nil
+    open var onMovedToTop:Optional<() -> Void> = nil
     /// If the close button should be hidden or not
-    public var closeButtonhidden = false
+    open var closeButtonhidden = false
     /// The close button title
-    public var closeButtonTitle:String = "Close"
+    open var closeButtonTitle:String = "Close"
     /// ALImageGalleryDelegate reference
-    public var delegate:ALImageGalleryDelegate?
+    open var delegate:ALImageGalleryDelegate?
     /// The currently displayed image index
-    public var currentIndex:Int {
+    open var currentIndex:Int {
         get{
             return _currentIndex
         }
     }
-    private var _currentIndex:Int = 0
-    private var mainView:UIView!;
-    private var pageViewController:UIPageViewController!
-    private var scrollViewActive = false
+    fileprivate var _currentIndex:Int = 0
+    fileprivate var mainView:UIView!;
+    fileprivate var pageViewController:UIPageViewController!
+    fileprivate var scrollViewActive = false
     var currentViewController: UIViewController!;
     var closeButton:UIButton!
     
@@ -103,39 +103,39 @@ public class ALImageGalleryViewController:UIViewController, UIPageViewController
     
     // MARK: - UIViewController overrides
     
-    override public func viewDidLoad() {
+    override open func viewDidLoad() {
         super.viewDidLoad()
         if(images.count==0){
             return;
         }
-        UIDevice.currentDevice().beginGeneratingDeviceOrientationNotifications()
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ALImageGalleryViewController.orientationChanged), name: UIDeviceOrientationDidChangeNotification, object: UIDevice.currentDevice())
+        UIDevice.current.beginGeneratingDeviceOrientationNotifications()
+        NotificationCenter.default.addObserver(self, selector: #selector(ALImageGalleryViewController.orientationChanged), name: NSNotification.Name.UIDeviceOrientationDidChange, object: UIDevice.current)
         for v  in  self.view.subviews {
-            v.backgroundColor = UIColor.clearColor()
+            v.backgroundColor = UIColor.clear
         }
         
     }
     
-    override public func viewWillDisappear(animated: Bool) {
-        NSNotificationCenter.defaultCenter().removeObserver(self, name: UIDeviceOrientationDidChangeNotification, object: UIDevice.currentDevice())
+    override open func viewWillDisappear(_ animated: Bool) {
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIDeviceOrientationDidChange, object: UIDevice.current)
     }
     
-    override public func viewDidAppear(animated: Bool) {
+    override open func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         createMainView()
         createPageController()
-        UIView.animateWithDuration(0.5, animations: { () -> Void in
+        UIView.animate(withDuration: 0.5, animations: { () -> Void in
             self.view.backgroundColor = UIColor(red: 0.00, green: 0.00, blue: 0.00, alpha: 1)
         })
     }
     
     // MARK: - pageViewController related code
-    public func pageViewController(pageViewController: UIPageViewController, viewControllerAfterViewController viewController: UIViewController) -> UIViewController? {
+    open func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
         if scrollViewActive {
             return nil
             
         }else {
-            var index:Int = images.indexOf(((viewController.view.subviews[0] as! UIScrollView).subviews[0] as! UIImageView ).image!)!
+            var index:Int = images.index(of: ((viewController.view.subviews[0] as! UIScrollView).subviews[0] as! UIImageView ).image!)!
             if(index == ( images.count - 1 )){
                 return nil
             }else{
@@ -145,12 +145,12 @@ public class ALImageGalleryViewController:UIViewController, UIPageViewController
         }
     }
     
-    public func pageViewController(pageViewController: UIPageViewController, viewControllerBeforeViewController viewController: UIViewController) -> UIViewController? {
+    open func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
         if scrollViewActive {
             return nil
             
         }else {
-            var index:Int = images.indexOf(((viewController.view.subviews[0] as! UIScrollView).subviews[0] as! UIImageView ).image!)!
+            var index:Int = images.index(of: ((viewController.view.subviews[0] as! UIScrollView).subviews[0] as! UIImageView ).image!)!
             if(index == 0 ){
                 return nil
             }else{
@@ -160,7 +160,7 @@ public class ALImageGalleryViewController:UIViewController, UIPageViewController
         }
     }
     
-    func getViewControllerForIndex( index:Int) -> UIViewController?{
+    func getViewControllerForIndex( _ index:Int) -> UIViewController?{
         if((images.count == 0 || index >= images.count) || index<0  ){
             return nil;
         }
@@ -169,26 +169,26 @@ public class ALImageGalleryViewController:UIViewController, UIPageViewController
         let imageView = UIImageView()
         let scrollView: UIScrollView = UIScrollView(frame: mainView.frame)
         imageViewer.gallery = self
-        imageViewer.view.backgroundColor = UIColor.clearColor()
+        imageViewer.view.backgroundColor = UIColor.clear
         imageView.image = images[index]
         imageView.frame = mainView.frame
-        imageView.contentMode = UIViewContentMode.ScaleAspectFit
+        imageView.contentMode = UIViewContentMode.scaleAspectFit
         imageView.clipsToBounds = true;
         
         let singleTap = UITapGestureRecognizer(target: self, action: #selector(ALImageGalleryViewController.handleTapGesture(_:)) )
         let doubleTap = UITapGestureRecognizer(target: self, action: #selector(ALImageGalleryViewController.handleDoubleTapGesture(_:)) )
         singleTap.numberOfTapsRequired = 1
-        singleTap.requireGestureRecognizerToFail(doubleTap)
+        singleTap.require(toFail: doubleTap)
         doubleTap.numberOfTapsRequired = 2
         
-        scrollView.contentSize = CGSizeMake(imageView.frame.size.width, imageView.frame.size.height)
+        scrollView.contentSize = CGSize(width: imageView.frame.size.width, height: imageView.frame.size.height)
         scrollView.maximumZoomScale = 4
         scrollView.minimumZoomScale = 1
         scrollView.delegate = self
         scrollView.addGestureRecognizer(doubleTap)
         scrollView.addGestureRecognizer(singleTap)
         scrollView.addSubview(imageView)
-        scrollView.backgroundColor = UIColor.clearColor()
+        scrollView.backgroundColor = UIColor.clear
         
         imageViewer.view.addSubview(scrollView)
         imageViewer.scrollView = scrollView
@@ -202,7 +202,7 @@ public class ALImageGalleryViewController:UIViewController, UIPageViewController
     // MARK: - UIScrollView Functions
 
     
-    public func scrollViewDidEndZooming(scrollView: UIScrollView, withView view: UIView?, atScale scale: CGFloat) {
+    open func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {
         scrollViewActive = true
         pageViewController.dataSource = nil
         if scale == 1.0 {
@@ -211,19 +211,19 @@ public class ALImageGalleryViewController:UIViewController, UIPageViewController
         }
     }
     
-    public func viewForZoomingInScrollView(scrollView: UIScrollView) -> UIView? {
+    open func viewForZooming(in scrollView: UIScrollView) -> UIView? {
         return scrollView.subviews[0] as UIView
     }
     
     
     // MARK: - Tap gestures Functions
     
-    func handleTapGesture(sender: UITapGestureRecognizer!){
+    func handleTapGesture(_ sender: UITapGestureRecognizer!){
         delegate?.galleryDidReceiveTap(self)
         removeGallery()
     }
     
-    func handleDoubleTapGesture(sender: UITapGestureRecognizer){
+    func handleDoubleTapGesture(_ sender: UITapGestureRecognizer){
         delegate?.galleryDidReceiveDoubleTap(self)
         if scrollViewActive == false {
             scrollViewActive = true;
@@ -244,17 +244,17 @@ public class ALImageGalleryViewController:UIViewController, UIPageViewController
 
     
     func removeGallery(){
-        let orientation: UIInterfaceOrientation = UIApplication.sharedApplication().statusBarOrientation
+        let orientation: UIInterfaceOrientation = UIApplication.shared.statusBarOrientation
         if(orientation.isLandscape){
             
-            let value = UIInterfaceOrientation.Portrait.rawValue
-            UIDevice.currentDevice().setValue(value, forKey: "orientation")
+            let value = UIInterfaceOrientation.portrait.rawValue
+            UIDevice.current.setValue(value, forKey: "orientation")
             //return
         }
         scrollViewActive = false
         
         
-        self.dismissViewControllerAnimated(false, completion: { () -> Void in
+        self.dismiss(animated: false, completion: { () -> Void in
             if(self.onDismissViewController != nil ){
                 
                 self.onDismissViewController!()
@@ -269,21 +269,21 @@ public class ALImageGalleryViewController:UIViewController, UIPageViewController
         if(pageViewController != nil){
             let scrollView: UIScrollView = pageViewController.viewControllers?.first!.view?.subviews[0] as! UIScrollView
             scrollView.setZoomScale(1.0, animated: false)
-            scrollView.backgroundColor = UIColor.blackColor()//
+            scrollView.backgroundColor = UIColor.black//
             let imageView:UIImageView = scrollView.subviews[0] as! UIImageView
             
-            mainView.frame = CGRectMake(0, 0, UIScreen.mainScreen().bounds.width, UIScreen.mainScreen().bounds.height)
-            scrollView.frame = CGRectMake(0, 0, UIScreen.mainScreen().bounds.width, UIScreen.mainScreen().bounds.height)
-            scrollView.contentSize = CGSizeMake(imageView.frame.size.width, imageView.frame.size.height)
+            mainView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+            scrollView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+            scrollView.contentSize = CGSize(width: imageView.frame.size.width, height: imageView.frame.size.height)
             scrollView.center = view.center
-            imageView.frame = CGRectMake(0, 0, UIScreen.mainScreen().bounds.width, UIScreen.mainScreen().bounds.height)
+            imageView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
             imageView.center = view.center
             
-            let orientation: UIInterfaceOrientation = UIApplication.sharedApplication().statusBarOrientation
+            let orientation: UIInterfaceOrientation = UIApplication.shared.statusBarOrientation
             pageViewController.viewControllers?.first
             
-            closeButton.frame = CGRectMake(mainView.frame.size.width - 74, 50, 60, 30)
-            closeButton.enabled = !orientation.isLandscape
+            closeButton.frame = CGRect(x: mainView.frame.size.width - 74, y: 50, width: 60, height: 30)
+            closeButton.isEnabled = !orientation.isLandscape
             
             scrollViewActive = false
             pageViewController.dataSource = self
@@ -299,16 +299,16 @@ public class ALImageGalleryViewController:UIViewController, UIPageViewController
     
     func resetPager(){
         
-        let index:Int = images.indexOf(((pageViewController.viewControllers!.first!.view?.subviews[0] as! UIScrollView).subviews[0] as! UIImageView ).image!)!
+        let index:Int = images.index(of: ((pageViewController.viewControllers!.first!.view?.subviews[0] as! UIScrollView).subviews[0] as! UIImageView ).image!)!
         var temp:[UIViewController] = []
         temp.append(getViewControllerForIndex(index)!)
-        pageViewController.setViewControllers(temp, direction: UIPageViewControllerNavigationDirection.Forward, animated: false, completion:nil)
+        pageViewController.setViewControllers(temp, direction: UIPageViewControllerNavigationDirection.forward, animated: false, completion:nil)
     }
     
     func createMainView(){
         //Configure main view to use the entire screen
-        mainView = UIView(frame: CGRectMake(0, 0, UIScreen.mainScreen().bounds.width, UIScreen.mainScreen().bounds.height))
-        mainView.layer.borderColor = UIColor.redColor().CGColor
+        mainView = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
+        mainView.layer.borderColor = UIColor.red.cgColor
         mainView.layer.borderWidth = 0
         
         self.view.addSubview(mainView)
@@ -318,30 +318,30 @@ public class ALImageGalleryViewController:UIViewController, UIPageViewController
         var temp:[UIViewController] = []
         temp.append(getViewControllerForIndex(selectedIndex)!)
         
-        pageViewController = UIPageViewController(transitionStyle: UIPageViewControllerTransitionStyle.Scroll, navigationOrientation: UIPageViewControllerNavigationOrientation.Horizontal, options: nil)
+        pageViewController = UIPageViewController(transitionStyle: UIPageViewControllerTransitionStyle.scroll, navigationOrientation: UIPageViewControllerNavigationOrientation.horizontal, options: nil)
         pageViewController.dataSource = self
         pageViewController.view.frame  = mainView.frame
         pageViewController.view.layer.borderWidth = 0
-        pageViewController.view.layer.borderColor = UIColor.greenColor().CGColor
-        pageViewController.setViewControllers(temp, direction: UIPageViewControllerNavigationDirection.Forward, animated: true, completion:nil)
-        pageViewController.view.backgroundColor = UIColor.clearColor()
-        pageViewController.didMoveToParentViewController(self)
+        pageViewController.view.layer.borderColor = UIColor.green.cgColor
+        pageViewController.setViewControllers(temp, direction: UIPageViewControllerNavigationDirection.forward, animated: true, completion:nil)
+        pageViewController.view.backgroundColor = UIColor.clear
+        pageViewController.didMove(toParentViewController: self)
         
         self.addChildViewController(pageViewController)
         self.mainView.addSubview(pageViewController.view)
         self.mainView.clipsToBounds = true
         closeButton = UIButton(frame: CGRect(x: mainView.frame.size.width - 74, y: 50, width: 60, height: 30))
         closeButton.titleLabel?.font = UIFont(name: "Roboto-Bold", size: 13)
-        closeButton.titleLabel?.textColor = UIColor.whiteColor()
-        closeButton.setTitle(closeButtonTitle, forState: UIControlState.Normal)
+        closeButton.titleLabel?.textColor = UIColor.white
+        closeButton.setTitle(closeButtonTitle, for: UIControlState())
         closeButton.layer.cornerRadius = 5
         closeButton.layer.borderWidth = 1
         closeButton.backgroundColor = UIColor(red: 0.1, green: 0.1, blue: 0.1, alpha: 0.6)
-        closeButton.layer.borderColor = UIColor.whiteColor().CGColor
-        closeButton.hidden = closeButtonhidden
-        closeButton.addTarget(self, action: #selector(ALImageGalleryViewController.removeGallery), forControlEvents: .TouchUpInside)
+        closeButton.layer.borderColor = UIColor.white.cgColor
+        closeButton.isHidden = closeButtonhidden
+        closeButton.addTarget(self, action: #selector(ALImageGalleryViewController.removeGallery), for: .touchUpInside)
         self.mainView.addSubview(closeButton)
-        self.mainView.bringSubviewToFront(closeButton)
+        self.mainView.bringSubview(toFront: closeButton)
     }
     
     
@@ -354,18 +354,18 @@ internal class ALHelperViewController: UIViewController, UIGestureRecognizerDele
     var gallery: ALImageGalleryViewController!;
     var scrollView:UIScrollView!
     var imageView:UIImageView!
-    let screenYCenter = UIScreen.mainScreen().bounds.height / 2
+    let screenYCenter = UIScreen.main.bounds.height / 2
     
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         gallery.currentViewController = self
-        scrollView.frame = CGRectMake(0, 0, UIScreen.mainScreen().bounds.width, UIScreen.mainScreen().bounds.height)
-        imageView.frame = CGRectMake(0, 0, UIScreen.mainScreen().bounds.width, UIScreen.mainScreen().bounds.height)
-        scrollView.contentSize = CGSizeMake(imageView.frame.size.width, imageView.frame.size.height)
+        scrollView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+        imageView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+        scrollView.contentSize = CGSize(width: imageView.frame.size.width, height: imageView.frame.size.height)
         scrollView.center = view.center
         imageView.center = view.center
         
         for v  in  self.view.subviews {
-            v.backgroundColor = UIColor.clearColor()
+            v.backgroundColor = UIColor.clear
             
         }
         
@@ -382,8 +382,8 @@ internal class ALHelperViewController: UIViewController, UIGestureRecognizerDele
         
     }
     
-    func gestureRecognizerShouldBegin(gestureRecognizer: UIGestureRecognizer) -> Bool {
-        let translation = (gestureRecognizer as! UIPanGestureRecognizer).translationInView(self.view.superview!)
+    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        let translation = (gestureRecognizer as! UIPanGestureRecognizer).translation(in: self.view.superview!)
         if (scrollView.zoomScale != 1){
             return false
         }
@@ -396,22 +396,22 @@ internal class ALHelperViewController: UIViewController, UIGestureRecognizerDele
         return true
     }
     
-    func handleDragGesture(sender: UIPanGestureRecognizer){
+    func handleDragGesture(_ sender: UIPanGestureRecognizer){
         gallery.delegate?.galleryImageDragged(gallery)
         if (scrollView.zoomScale != 1 || !gallery.dismissWhenSlidesUp){
             return
         }
-        let translation  = sender.translationInView(self.view.superview!)
-        self.scrollView.center = CGPointMake(self.view.center.x , self.view.center.y + translation.y)
+        let translation  = sender.translation(in: self.view.superview!)
+        self.scrollView.center = CGPoint(x: self.view.center.x , y: self.view.center.y + translation.y)
         switch (sender.state) {
-        case UIGestureRecognizerState.Began:
+        case UIGestureRecognizerState.began:
             break;
-        case UIGestureRecognizerState.Changed:
+        case UIGestureRecognizerState.changed:
             
             self.gallery.view.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: self.scrollView.center.y / self.screenYCenter)
             
             break;
-        case UIGestureRecognizerState.Ended:
+        case UIGestureRecognizerState.ended:
             let scrollCenterY = self.scrollView.center.y
             if(scrollCenterY <= 180){
                 if(self.gallery.onMovedToTop != nil){
@@ -420,7 +420,7 @@ internal class ALHelperViewController: UIViewController, UIGestureRecognizerDele
                 }
                 self.gallery.removeGallery()
             }else{
-                UIView.animateWithDuration(0.2, animations: { () -> Void in
+                UIView.animate(withDuration: 0.2, animations: { () -> Void in
                     self.scrollView.center = self.view.center
                     self.gallery.view.backgroundColor = UIColor(red: 0.00, green: 0.00, blue: 0.00, alpha: 1)
                     
