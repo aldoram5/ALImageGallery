@@ -218,12 +218,12 @@ open class ALImageGalleryViewController:UIViewController, UIPageViewControllerDa
     
     // MARK: - Tap gestures Functions
     
-    func handleTapGesture(_ sender: UITapGestureRecognizer!){
+    @objc func handleTapGesture(_ sender: UITapGestureRecognizer!){
         delegate?.galleryDidReceiveTap(self)
         removeGallery()
     }
     
-    func handleDoubleTapGesture(_ sender: UITapGestureRecognizer){
+    @objc func handleDoubleTapGesture(_ sender: UITapGestureRecognizer){
         delegate?.galleryDidReceiveDoubleTap(self)
         if scrollViewActive == false {
             scrollViewActive = true;
@@ -243,7 +243,7 @@ open class ALImageGalleryViewController:UIViewController, UIPageViewControllerDa
     // MARK: - Helper Functions
 
     
-    func removeGallery(){
+    @objc func removeGallery(){
         let orientation: UIInterfaceOrientation = UIApplication.shared.statusBarOrientation
         if(orientation.isLandscape){
             
@@ -265,7 +265,7 @@ open class ALImageGalleryViewController:UIViewController, UIPageViewControllerDa
         
     }
     
-    func orientationChanged(){
+    @objc func orientationChanged(){
         if(pageViewController != nil){
             let scrollView: UIScrollView = pageViewController.viewControllers?.first!.view?.subviews[0] as! UIScrollView
             scrollView.setZoomScale(1.0, animated: false)
@@ -280,7 +280,6 @@ open class ALImageGalleryViewController:UIViewController, UIPageViewControllerDa
             imageView.center = view.center
             
             let orientation: UIInterfaceOrientation = UIApplication.shared.statusBarOrientation
-            pageViewController.viewControllers?.first
             
             closeButton.frame = CGRect(x: mainView.frame.size.width - 74, y: 50, width: 60, height: 30)
             closeButton.isEnabled = !orientation.isLandscape
@@ -396,7 +395,7 @@ internal class ALHelperViewController: UIViewController, UIGestureRecognizerDele
         return true
     }
     
-    func handleDragGesture(_ sender: UIPanGestureRecognizer){
+    @objc func handleDragGesture(_ sender: UIPanGestureRecognizer){
         gallery.delegate?.galleryImageDragged(gallery)
         if (scrollView.zoomScale != 1 || !gallery.dismissWhenSlidesUp){
             return
