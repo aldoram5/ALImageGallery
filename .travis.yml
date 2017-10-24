@@ -1,7 +1,7 @@
 language: objective-c
 
-osx_image: xcode7.3
+osx_image: xcode8
 xcode_workspace: ALImageGallery.xcworkspace
 xcode_scheme: ALImageGallery
 
-script: set -o pipefail &&  xcodebuild -workspace ALImageGallery.xcworkspace -scheme ALImageGallery -sdk iphonesimulator -destination 'OS=9.2,name=iPhone 6S Plus' build ;
+script: set -o pipefail &&  xcodebuild -workspace ALImageGallery.xcworkspace -scheme ALImageGallery -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 6S Plus' build ;
