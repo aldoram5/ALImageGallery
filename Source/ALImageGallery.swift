@@ -215,11 +215,11 @@ open class ALImageGalleryViewController:UIViewController, UIPageViewControllerDa
         let scrollView: UIScrollView = pageViewController.viewControllers?.first!.view?.subviews[0] as! UIScrollView
         let imageView:UIImageView = scrollView.subviews[0] as! UIImageView
         
-        mainView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
-        scrollView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+        mainView.frame = CGRect(x: 0, y: statusBarHeight(), width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height - statusBarHeight())
+        scrollView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height - statusBarHeight())
         scrollView.contentSize = CGSize(width: imageView.frame.size.width, height: imageView.frame.size.height)
         scrollView.center = view.center
-        imageView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+        imageView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height - statusBarHeight())
         imageView.center = view.center
     }
     
@@ -286,6 +286,11 @@ open class ALImageGalleryViewController:UIViewController, UIPageViewControllerDa
         
     }
     
+    internal func statusBarHeight() -> CGFloat {
+        let statusBarSize = UIApplication.shared.statusBarFrame.size
+        return Swift.min(statusBarSize.width, statusBarSize.height)
+    }
+    
     func orientationChanged(){
         if(pageViewController != nil){
             let scrollView: UIScrollView = pageViewController.viewControllers?.first!.view?.subviews[0] as! UIScrollView
@@ -293,11 +298,11 @@ open class ALImageGalleryViewController:UIViewController, UIPageViewControllerDa
             scrollView.backgroundColor = UIColor.black
             let imageView:UIImageView = scrollView.subviews[0] as! UIImageView
             
-            mainView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
-            scrollView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
-            scrollView.contentSize = CGSize(width: imageView.frame.size.width, height: imageView.frame.size.height)
+            mainView.frame = CGRect(x: 0, y: statusBarHeight(), width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height - statusBarHeight())
+            scrollView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height - statusBarHeight())
+            scrollView.contentSize = CGSize(width: imageView.frame.size.width, height: imageView.frame.size.height - statusBarHeight())
             scrollView.center = view.center
-            imageView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+            imageView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height - statusBarHeight())
             imageView.center = view.center
             
             let orientation: UIInterfaceOrientation = UIApplication.shared.statusBarOrientation
@@ -323,8 +328,8 @@ open class ALImageGalleryViewController:UIViewController, UIPageViewControllerDa
     
     func createMainView(){
         //Configure main view to use the entire screen
-        mainView = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
-        
+        mainView = UIView(frame: CGRect(x: 0, y: statusBarHeight(), width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height - statusBarHeight()))
+        print("Main: \(mainView.frame)")
         
         self.view.addSubview(mainView)
     }
@@ -335,7 +340,7 @@ open class ALImageGalleryViewController:UIViewController, UIPageViewControllerDa
         
         pageViewController = UIPageViewController(transitionStyle: UIPageViewControllerTransitionStyle.scroll, navigationOrientation: UIPageViewControllerNavigationOrientation.horizontal, options: nil)
         pageViewController.dataSource = self
-        pageViewController.view.frame  = mainView.frame
+        pageViewController.view.frame  = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height - statusBarHeight())//mainView.frame
         pageViewController.view.layer.borderWidth = 0
         pageViewController.view.layer.borderColor = UIColor.green.cgColor
         pageViewController.setViewControllers(temp, direction: UIPageViewControllerNavigationDirection.forward, animated: true, completion:nil)
@@ -375,12 +380,13 @@ internal class ALHelperViewController: UIViewController, UIGestureRecognizerDele
     
     override func viewWillAppear(_ animated: Bool) {
         gallery.currentViewController = self
-        scrollView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
-        imageView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+        scrollView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height - gallery.statusBarHeight())
+        imageView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height - gallery.statusBarHeight())
         scrollView.contentSize = CGSize(width: imageView.frame.size.width, height: imageView.frame.size.height)
         scrollView.center = view.center
         imageView.center = view.center
         
+        print("Internal Scroll: \(scrollView.frame)")
         for subview  in  self.view.subviews {
             subview.backgroundColor = UIColor.clear
             
@@ -465,7 +471,7 @@ internal class ALHelperViewController: UIViewController, UIGestureRecognizerDele
             break;
         case UIGestureRecognizerState.ended:
             let scrollCenterY = self.scrollView.center.y
-            if(scrollCenterY <= (UIScreen.main.bounds.height / 2 - 15) && self.gallery.dismissWhenSlidesUp){
+            if(scrollCenterY <= (UIScreen.main.bounds.height / 2 - 25) && self.gallery.dismissWhenSlidesUp){
                 if(self.gallery.onMovedToTop != nil){
                     self.gallery.onMovedToTop!()
                     
@@ -479,7 +485,7 @@ internal class ALHelperViewController: UIViewController, UIGestureRecognizerDele
                 })
             }
             
-            if(scrollCenterY >= (UIScreen.main.bounds.height / 2 + 15) && self.gallery.dismissWhenSlidesDown){
+            if(scrollCenterY >= (UIScreen.main.bounds.height / 2 + 25) && self.gallery.dismissWhenSlidesDown){
                 
                 self.gallery.removeGallery()
             } else{
