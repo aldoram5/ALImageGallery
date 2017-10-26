@@ -6,7 +6,7 @@
 //
 //  The MIT License (MIT)
 //
-//  Copyright (c) 2015 Aldo Pedro Rangel Montiel
+//  Copyright (c) 2015 - 2017 Aldo Pedro Rangel Montiel
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -37,8 +37,6 @@ public protocol ALImageGalleryDelegate{
     func galleryDidDismiss(_ imageGallery:ALImageGalleryViewController)
     func galleryImageDragged(_ imageGallery:ALImageGalleryViewController)
     
-    
-
 }
 
 open class ALImageGalleryViewController:UIViewController, UIPageViewControllerDataSource, UIScrollViewDelegate {
@@ -46,6 +44,8 @@ open class ALImageGalleryViewController:UIViewController, UIPageViewControllerDa
     open var images:[UIImage] = []
     /// Either the gallery should response to being dragged to top or not
     open var dismissWhenSlidesUp:Bool = true
+    /// Either the gallery should response to being dragged down
+    open var dismissWhenSlidesDown:Bool = true
     /// Either if the current displayed image should respond to dragging
     open var canBeDragged:Bool = true
     /// The index in which the gallery should open first
@@ -55,7 +55,7 @@ open class ALImageGalleryViewController:UIViewController, UIPageViewControllerDa
     /// A function to be executed once the Gallery is dragged to top
     open var onMovedToTop:Optional<() -> Void> = nil
     /// If the close button should be hidden or not
-    open var closeButtonhidden = false
+    open var closeButtonhidden = true
     /// The close button title
     open var closeButtonTitle:String = "Close"
     /// ALImageGalleryDelegate reference
@@ -66,10 +66,14 @@ open class ALImageGalleryViewController:UIViewController, UIPageViewControllerDa
             return _currentIndex
         }
     }
+    /// If a UIActivityViewController should appear on long press gesture
+    open var showActivityVCOnLongPress = true
+    
     fileprivate var _currentIndex:Int = 0
     fileprivate var mainView:UIView!;
     fileprivate var pageViewController:UIPageViewController!
     fileprivate var scrollViewActive = false
+    fileprivate var createdView = false
     var currentViewController: UIViewController!;
     var closeButton:UIButton!
     
@@ -108,10 +112,8 @@ open class ALImageGalleryViewController:UIViewController, UIPageViewControllerDa
         if(images.count==0){
             return;
         }
-        UIDevice.current.beginGeneratingDeviceOrientationNotifications()
-        NotificationCenter.default.addObserver(self, selector: #selector(ALImageGalleryViewController.orientationChanged), name: NSNotification.Name.UIDeviceOrientationDidChange, object: UIDevice.current)
-        for v  in  self.view.subviews {
-            v.backgroundColor = UIColor.clear
+        for subview  in  self.view.subviews {
+            subview.backgroundColor = UIColor.clear
         }
         
     }
@@ -122,11 +124,16 @@ open class ALImageGalleryViewController:UIViewController, UIPageViewControllerDa
     
     override open func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        createMainView()
-        createPageController()
-        UIView.animate(withDuration: 0.5, animations: { () -> Void in
-            self.view.backgroundColor = UIColor(red: 0.00, green: 0.00, blue: 0.00, alpha: 1)
-        })
+        self.view.backgroundColor = UIColor(red: 0.00, green: 0.00, blue: 0.00, alpha: 1)
+    }
+    open override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        if !createdView{
+            createdView = true
+            createMainView()
+            createPageController()
+        }
+        orientationChanged()
     }
     
     // MARK: - pageViewController related code
@@ -166,10 +173,9 @@ open class ALImageGalleryViewController:UIViewController, UIPageViewControllerDa
         }
         
         let imageViewer: ALHelperViewController = ALHelperViewController()
+        imageViewer.gallery = self
         let imageView = UIImageView()
         let scrollView: UIScrollView = UIScrollView(frame: mainView.frame)
-        imageViewer.gallery = self
-        imageViewer.view.backgroundColor = UIColor.clear
         imageView.image = images[index]
         imageView.frame = mainView.frame
         imageView.contentMode = UIViewContentMode.scaleAspectFit
@@ -190,9 +196,11 @@ open class ALImageGalleryViewController:UIViewController, UIPageViewControllerDa
         scrollView.addSubview(imageView)
         scrollView.backgroundColor = UIColor.clear
         
-        imageViewer.view.addSubview(scrollView)
+        imageViewer.gallery = self
         imageViewer.scrollView = scrollView
         imageViewer.imageView = imageView
+        imageViewer.view.addSubview(scrollView)
+        imageViewer.view.backgroundColor = UIColor.clear
         
         _currentIndex = index
         return imageViewer
@@ -200,7 +208,20 @@ open class ALImageGalleryViewController:UIViewController, UIPageViewControllerDa
     
     
     // MARK: - UIScrollView Functions
-
+    open func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        if(scrollView.zoomScale != 1.0){
+            return
+        }
+        let scrollView: UIScrollView = pageViewController.viewControllers?.first!.view?.subviews[0] as! UIScrollView
+        let imageView:UIImageView = scrollView.subviews[0] as! UIImageView
+        
+        mainView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+        scrollView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+        scrollView.contentSize = CGSize(width: imageView.frame.size.width, height: imageView.frame.size.height)
+        scrollView.center = view.center
+        imageView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+        imageView.center = view.center
+    }
     
     open func scrollViewDidEndZooming(_ scrollView: UIScrollView, with view: UIView?, atScale scale: CGFloat) {
         scrollViewActive = true
@@ -265,11 +286,11 @@ open class ALImageGalleryViewController:UIViewController, UIPageViewControllerDa
         
     }
     
-    @objc func orientationChanged(){
+    func orientationChanged(){
         if(pageViewController != nil){
             let scrollView: UIScrollView = pageViewController.viewControllers?.first!.view?.subviews[0] as! UIScrollView
             scrollView.setZoomScale(1.0, animated: false)
-            scrollView.backgroundColor = UIColor.black//
+            scrollView.backgroundColor = UIColor.black
             let imageView:UIImageView = scrollView.subviews[0] as! UIImageView
             
             mainView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
@@ -280,18 +301,12 @@ open class ALImageGalleryViewController:UIViewController, UIPageViewControllerDa
             imageView.center = view.center
             
             let orientation: UIInterfaceOrientation = UIApplication.shared.statusBarOrientation
+            _ = pageViewController.viewControllers?.first
             
-            closeButton.frame = CGRect(x: mainView.frame.size.width - 74, y: 50, width: 60, height: 30)
+            closeButton.frame = CGRect(x: mainView.frame.size.width - 74, y: 40, width: 60, height: 30)
             closeButton.isEnabled = !orientation.isLandscape
             
-            scrollViewActive = false
-            pageViewController.dataSource = self
-            
-            defer{
-                resetPager()
-            }
-            //NSTimer.scheduledTimerWithTimeInterval(0.1, target: self, selector: Selector("resetPager"), userInfo: nil, repeats: false)
-            
+            resetPager()
         }
         
     }
@@ -302,13 +317,14 @@ open class ALImageGalleryViewController:UIViewController, UIPageViewControllerDa
         var temp:[UIViewController] = []
         temp.append(getViewControllerForIndex(index)!)
         pageViewController.setViewControllers(temp, direction: UIPageViewControllerNavigationDirection.forward, animated: false, completion:nil)
+        self.pageViewController.view.setNeedsLayout()
+        self.view.setNeedsDisplay()
     }
     
     func createMainView(){
         //Configure main view to use the entire screen
         mainView = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height))
-        mainView.layer.borderColor = UIColor.red.cgColor
-        mainView.layer.borderWidth = 0
+        
         
         self.view.addSubview(mainView)
     }
@@ -348,9 +364,11 @@ open class ALImageGalleryViewController:UIViewController, UIPageViewControllerDa
 
 
 //MARK: - ALHelperViewController
-/// Internal ciew controller that contains the
+
+
+/// Internal ciew controller that contains a single image with it's own UIScrollView, UIImageView and gesture recognizer
 internal class ALHelperViewController: UIViewController, UIGestureRecognizerDelegate{
-    var gallery: ALImageGalleryViewController!;
+    var gallery: ALImageGalleryViewController!
     var scrollView:UIScrollView!
     var imageView:UIImageView!
     let screenYCenter = UIScreen.main.bounds.height / 2
@@ -363,21 +381,35 @@ internal class ALHelperViewController: UIViewController, UIGestureRecognizerDele
         scrollView.center = view.center
         imageView.center = view.center
         
-        for v  in  self.view.subviews {
-            v.backgroundColor = UIColor.clear
+        for subview  in  self.view.subviews {
+            subview.backgroundColor = UIColor.clear
             
         }
+        self.view.setNeedsLayout()
+        self.view.setNeedsDisplay()
         
     }
     
     override func viewDidLoad() {
         if(gallery.canBeDragged){
+            
             let dragRecognizer = UIPanGestureRecognizer(target: self, action: #selector(ALHelperViewController.handleDragGesture(_:)) )
             dragRecognizer.maximumNumberOfTouches = 1
             dragRecognizer.minimumNumberOfTouches = 1
             dragRecognizer.delegate = self
             self.view.addGestureRecognizer(dragRecognizer)
+            if(gallery.showActivityVCOnLongPress){
+                let longPress = UILongPressGestureRecognizer(target: self, action: #selector(ALHelperViewController.handleLongPressGesture(_:)))
+                longPress.minimumPressDuration = 0.754
+                self.imageView.addGestureRecognizer(longPress)
+                
+                self.imageView.isUserInteractionEnabled = true
+            }
         }
+        self.view.clipsToBounds = false
+        self.view.setNeedsLayout()
+        self.view.setNeedsDisplay()
+        
         
     }
     
@@ -386,13 +418,34 @@ internal class ALHelperViewController: UIViewController, UIGestureRecognizerDele
         if (scrollView.zoomScale != 1){
             return false
         }
-        if(abs(translation.x) > 3 && abs(translation.y) < 85){
+        if(abs(translation.x) - 1 > abs(translation.y) ){
             
             return false
             
         }
         
         return true
+    }
+    
+    @objc func handleLongPressGesture(_ sender: UILongPressGestureRecognizer!){
+        if (scrollView.zoomScale != 1 || !self.gallery.showActivityVCOnLongPress){
+            return
+        }
+        switch (sender.state) {
+        case UIGestureRecognizerState.began:
+            let activityController = UIActivityViewController(activityItems: [imageView.image], applicationActivities: [])
+            activityController.popoverPresentationController?.sourceView = imageView
+            activityController.popoverPresentationController?.sourceRect = imageView.bounds
+            self.gallery.present(activityController, animated: true)
+            break;
+        case UIGestureRecognizerState.changed:
+            
+            break;
+        case UIGestureRecognizerState.ended:
+            break;
+        default:
+            break;
+        }
     }
     
     @objc func handleDragGesture(_ sender: UIPanGestureRecognizer){
@@ -412,7 +465,7 @@ internal class ALHelperViewController: UIViewController, UIGestureRecognizerDele
             break;
         case UIGestureRecognizerState.ended:
             let scrollCenterY = self.scrollView.center.y
-            if(scrollCenterY <= 180){
+            if(scrollCenterY <= (UIScreen.main.bounds.height / 2 - 15) && self.gallery.dismissWhenSlidesUp){
                 if(self.gallery.onMovedToTop != nil){
                     self.gallery.onMovedToTop!()
                     
@@ -421,7 +474,18 @@ internal class ALHelperViewController: UIViewController, UIGestureRecognizerDele
             }else{
                 UIView.animate(withDuration: 0.2, animations: { () -> Void in
                     self.scrollView.center = self.view.center
-                    self.gallery.view.backgroundColor = UIColor(red: 0.00, green: 0.00, blue: 0.00, alpha: 1)
+                    self.gallery.view.backgroundColor = UIColor.black
+                    
+                })
+            }
+            
+            if(scrollCenterY >= (UIScreen.main.bounds.height / 2 + 15) && self.gallery.dismissWhenSlidesDown){
+                
+                self.gallery.removeGallery()
+            } else{
+                UIView.animate(withDuration: 0.2, animations: { () -> Void in
+                    self.scrollView.center = self.view.center
+                    self.gallery.view.backgroundColor = UIColor.black
                     
                 })
             }
