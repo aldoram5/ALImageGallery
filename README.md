@@ -2,7 +2,7 @@
 
 ![](https://travis-ci.org/aldoram5/ALImageGallery.svg?branch=master) 
 [![GitHub license](https://img.shields.io/github/license/aldoram5/ALImageGallery.svg)](https://github.com/aldoram5/ALImageGallery/blob/master/LICENSE)
-![Swift version](https://img.shields.io/badge/swift-4-blue.svg)]
+![Swift version](https://img.shields.io/badge/swift-4-blue.svg)
 
 A lightweight Image Gallery for iOS written in Swift, it supports zooming the images and paging through them. 
 More features will be added in the near future so be sure to comeback.
